@@ -319,3 +319,5 @@ Built with ❤️ for better web experiences.
 - [ ] Customize for your project needs
 
 **Note:** This is a template/boilerplate. For production use, implement proper backend authentication, API security, and data validation.
+#   m a d r a s h a - m a n a g e m e n t  
+ 
