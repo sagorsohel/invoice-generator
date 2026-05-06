@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer, DollarSign, Coins } from 'lucide-react'
+import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer, DollarSign, Coins, Phone, Mail, MapPin } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -20,6 +20,7 @@ interface InvoiceItem {
   description: string
   quantity: number
   rate: number
+  discount: number
 }
 
 type Currency = 'USD' | 'BDT'
@@ -43,6 +44,13 @@ interface InvoiceData {
   currency: Currency
   taxRate: number
   discountRate: number
+  accountNumber?: string
+  receivedAmount?: number
+  notes?: string
+  terms?: string
+  signatureName?: string
+  signatureRole?: string
+  phoneNumber?: string
 }
 
 export default function GeneratorPage() {
@@ -68,11 +76,18 @@ export default function GeneratorPage() {
         description: '',
         quantity: 1,
         rate: 0,
+        discount: 0,
       },
     ],
     currency: 'USD',
     taxRate: 0,
     discountRate: 0,
+    accountNumber: '',
+    receivedAmount: 0,
+    terms: '',
+    signatureName: '',
+    signatureRole: '',
+    phoneNumber: '',
   })
 
   const [showReview, setShowReview] = useState(false)
@@ -99,6 +114,7 @@ export default function GeneratorPage() {
       description: '',
       quantity: 1,
       rate: 0,
+      discount: 0,
     }
     setInvoiceData((prev) => ({
       ...prev,
@@ -146,6 +162,7 @@ export default function GeneratorPage() {
           <html>
             <head>
               <title>Invoice - ${invoiceData.invoiceNumber}</title>
+              <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
               <script src="https://cdn.tailwindcss.com"></script>
               <style>
                 @page { size: auto; margin: 0mm; }
@@ -189,15 +206,19 @@ export default function GeneratorPage() {
         clone.style.background = 'white'
         clone.classList.remove('dark')
         
-        // Remove oklch dependencies in the clone by forcing hex colors
+        // Add a style block to override oklch variables with hex for html2canvas compatibility
         const styleOverride = document.createElement('style')
         styleOverride.innerHTML = `
+          @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
           * { 
             color-scheme: light !important;
             --background: #ffffff !important;
             --foreground: #020617 !important;
             --primary: #06b6d4 !important;
             --border: #e2e8f0 !important;
+          }
+          .signature-font {
+            font-family: 'Dancing Script', cursive !important;
           }
         `
         clone.prepend(styleOverride)
@@ -234,10 +255,15 @@ export default function GeneratorPage() {
     }
   }
 
-  const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.rate, 0)
+  const subtotal = invoiceData.items.reduce((sum, item) => {
+    const itemTotal = item.quantity * item.rate
+    const itemDiscount = (itemTotal * item.discount) / 100
+    return sum + (itemTotal - itemDiscount)
+  }, 0)
   const discount = (subtotal * invoiceData.discountRate) / 100
   const tax = ((subtotal - discount) * invoiceData.taxRate) / 100
   const total = subtotal - discount + tax
+  const dueAmount = total - (invoiceData.receivedAmount || 0)
 
   const currencySymbols: Record<Currency, string> = {
     USD: '$',
@@ -260,6 +286,21 @@ export default function GeneratorPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Description / Note Section (Based on Image) */}
+            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+              <CardContent className="p-6 space-y-3">
+                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  Description / Note
+                </Label>
+                <textarea
+                  placeholder="Describe this invoice item..."
+                  value={invoiceData.notes}
+                  onChange={(e) => updateInvoiceData('notes', e.target.value)}
+                  className="w-full min-h-[100px] p-4 rounded-md border border-slate-200 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
+                />
+              </CardContent>
+            </Card>
+
             {/* Invoice Header */}
             <Card className="shadow-sm border-slate-200 dark:border-slate-800">
               <CardHeader className="pb-4">
@@ -453,6 +494,90 @@ export default function GeneratorPage() {
               </Card>
             </div>
 
+            {/* Payment Details Section (Based on Image) */}
+            <Card className="shadow-sm border-slate-200 dark:border-slate-800 overflow-hidden">
+              <CardHeader className="pb-4 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
+                  Payment Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3" />
+                      INV Number
+                    </Label>
+                    <Input
+                      placeholder="Invoice #"
+                      value={invoiceData.invoiceNumber}
+                      onChange={(e) => updateInvoiceData('invoiceNumber', e.target.value)}
+                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3" />
+                      INV Date
+                    </Label>
+                    <Input
+                      type="date"
+                      value={invoiceData.currentDate}
+                      onChange={(e) => updateInvoiceData('currentDate', e.target.value)}
+                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3" />
+                      Account #
+                    </Label>
+                    <Input
+                      placeholder="A/C Number"
+                      value={invoiceData.accountNumber}
+                      onChange={(e) => updateInvoiceData('accountNumber', e.target.value)}
+                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      Invoice Total
+                    </Label>
+                    <div className="h-11 flex items-center px-4 rounded-md border border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 font-bold text-slate-900 dark:text-white">
+                      {symbol}{total.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1">
+                      <DollarSign className="w-3 h-3" />
+                      Received Amount
+                    </Label>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      value={invoiceData.receivedAmount}
+                      onChange={(e) => updateInvoiceData('receivedAmount', parseFloat(e.target.value) || 0)}
+                      className="bg-white dark:bg-slate-900 h-11 border-blue-200 focus-visible:ring-blue-500/20"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1">
+                      <ChevronRight className="w-3 h-3 rotate-90" />
+                      Due Amount
+                    </Label>
+                    <div className="h-11 flex items-center px-4 rounded-md border border-red-100 bg-red-50/30 dark:bg-red-900/10 font-bold text-red-600">
+                      {symbol}{dueAmount.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Items */}
             <Card className="shadow-sm border-slate-200 dark:border-slate-800">
               <CardHeader className="pb-4">
@@ -475,6 +600,9 @@ export default function GeneratorPage() {
                         </th>
                         <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
                           Rate
+                        </th>
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                          Disc %
                         </th>
                         <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
                           Total
@@ -529,9 +657,20 @@ export default function GeneratorPage() {
                               />
                             </div>
                           </td>
+                          <td className="py-4 px-4">
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={item.discount}
+                              onChange={(e) => updateItem(item.id, 'discount', parseFloat(e.target.value) || 0)}
+                              className="bg-white dark:bg-slate-900 text-sm text-right"
+                            />
+                          </td>
                           <td className="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
                             {symbol}
-                            {(item.quantity * item.rate).toFixed(2)}
+                            {((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
                           </td>
                           <td className="py-4 px-4 text-center">
                             <Button
@@ -557,6 +696,66 @@ export default function GeneratorPage() {
                   <Plus className="w-4 h-4" />
                   Add Item
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Additional Information */}
+            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Additional Information</CardTitle>
+                <CardDescription>Add terms, conditions and signature info</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="terms" className="text-sm font-medium">
+                    Terms and Conditions
+                  </Label>
+                  <Input
+                    id="terms"
+                    placeholder="e.g. Please send payment within 30 days"
+                    value={invoiceData.terms}
+                    onChange={(e) => updateInvoiceData('terms', e.target.value)}
+                    className="bg-white dark:bg-slate-900"
+                  />
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="sig-name" className="text-sm font-medium">
+                      Authorized Person Name
+                    </Label>
+                    <Input
+                      id="sig-name"
+                      placeholder="e.g. Henrietta Mitchell"
+                      value={invoiceData.signatureName}
+                      onChange={(e) => updateInvoiceData('signatureName', e.target.value)}
+                      className="bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sig-role" className="text-sm font-medium">
+                      Designation / Role
+                    </Label>
+                    <Input
+                      id="sig-role"
+                      placeholder="e.g. Administrator"
+                      value={invoiceData.signatureRole}
+                      onChange={(e) => updateInvoiceData('signatureRole', e.target.value)}
+                      className="bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">
+                    Your Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    placeholder="e.g. +880 123-456789"
+                    value={invoiceData.phoneNumber}
+                    onChange={(e) => updateInvoiceData('phoneNumber', e.target.value)}
+                    className="bg-white dark:bg-slate-900"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -779,6 +978,7 @@ export default function GeneratorPage() {
                         <th className="text-left py-3 px-4 font-semibold">DESCRIPTION</th>
                         <th className="text-center py-3 px-4 font-semibold">QTY</th>
                         <th className="text-right py-3 px-4 font-semibold">RATE</th>
+                        <th className="text-right py-3 px-4 font-semibold">DISC %</th>
                         <th className="text-right py-3 px-4 font-semibold">TOTAL</th>
                       </tr>
                     </thead>
@@ -801,9 +1001,12 @@ export default function GeneratorPage() {
                             {symbol}
                             {item.rate.toFixed(2)}
                           </td>
+                          <td className="text-right py-3 px-4 text-slate-600 dark:text-slate-400">
+                            {item.discount}%
+                          </td>
                           <td className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">
                             {symbol}
-                            {(item.quantity * item.rate).toFixed(2)}
+                            {((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -812,7 +1015,7 @@ export default function GeneratorPage() {
                 </div>
 
                 {/* Summary Section */}
-                <div className="flex justify-end mb-8">
+                <div className="flex justify-end mb-12">
                   <div className="w-full max-w-sm space-y-2">
                     <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
                       <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
@@ -850,12 +1053,88 @@ export default function GeneratorPage() {
                         {total.toFixed(2)}
                       </span>
                     </div>
+                    <div className="flex justify-between py-2 px-4 text-slate-600 dark:text-slate-400 font-medium">
+                      <span>Received:</span>
+                      <span>{symbol}{(invoiceData.receivedAmount || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold border-t border-red-100 dark:border-red-900/20">
+                      <span>DUE AMOUNT:</span>
+                      <span>{symbol}{dueAmount.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="border-t border-slate-200 dark:border-slate-700 pt-6 text-sm text-slate-600 dark:text-slate-400">
-                  <p className="font-semibold text-slate-900 dark:text-white mb-2">Thank you for your business!</p>
+                {/* Footer Section */}
+                <div className="mt-12">
+                  <div className="flex justify-between items-start mb-8">
+                    {/* Terms and Conditions */}
+                    <div className="max-w-[50%]">
+                      {invoiceData.terms && (
+                        <>
+                          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">Term and Conditions :</h3>
+                          <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                            {invoiceData.terms}
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Signature */}
+                    {(invoiceData.signatureName || invoiceData.signatureRole) && (
+                      <div className="text-right">
+                        {invoiceData.signatureName && (
+                          <>
+                            <p className="signature-font text-2xl text-slate-400 dark:text-slate-500 mb-1" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                              {invoiceData.signatureName}
+                            </p>
+                            <p className="font-bold text-slate-900 dark:text-white text-base uppercase tracking-tight">
+                              {invoiceData.signatureName}
+                            </p>
+                          </>
+                        )}
+                        {invoiceData.signatureRole && (
+                          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">
+                            {invoiceData.signatureRole}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contact Info Footer */}
+                  <div className="pt-8 border-t-2 border-slate-200 dark:border-slate-800">
+                    <div className="flex justify-between items-center px-4">
+                      {/* Phone */}
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                          <Phone className="w-4 h-4 text-[#06b6d4]" />
+                        </div>
+                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          {invoiceData.phoneNumber || invoiceData.billFrom.email || '123-456-7890'}
+                        </span>
+                      </div>
+
+                      {/* Email */}
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                          <Mail className="w-4 h-4 text-[#06b6d4]" />
+                        </div>
+                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          {invoiceData.billFrom.email || 'hello@reallygreatsite.com'}
+                        </span>
+                      </div>
+
+                      {/* Address */}
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                          <MapPin className="w-4 h-4 text-[#06b6d4]" />
+                        </div>
+                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          {invoiceData.billFrom.address || '123 Anywhere St., Any City'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
