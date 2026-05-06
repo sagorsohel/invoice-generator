@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Plus, ChevronRight } from 'lucide-react'
+import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer } from 'lucide-react'
 
 interface InvoiceItem {
   id: string
@@ -28,6 +28,7 @@ interface InvoiceData {
     name: string
     email: string
     address: string
+    logo?: string
   }
   items: InvoiceItem[]
   currency: string
@@ -49,6 +50,7 @@ export default function GeneratorPage() {
       name: '',
       email: '',
       address: '',
+      logo: undefined,
     },
     items: [
       {
@@ -63,6 +65,9 @@ export default function GeneratorPage() {
     taxRate: 0,
     discountRate: 0,
   })
+
+  const [showReview, setShowReview] = useState(false)
+  const printRef = useRef<HTMLDivElement>(null)
 
   const updateInvoiceData = (path: string, value: any) => {
     setInvoiceData((prev) => {
@@ -105,6 +110,69 @@ export default function GeneratorPage() {
         item.id === id ? { ...item, [field]: value } : item
       ),
     }))
+  }
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        updateInvoiceData('billFrom.logo', reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeLogo = () => {
+    updateInvoiceData('billFrom.logo', undefined)
+  }
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '', 'width=900,height=1200')
+    if (printWindow && printRef.current) {
+      const printContent = printRef.current.innerHTML
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Invoice ${invoiceData.invoiceNumber}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
+              @media print { body { margin: 0; padding: 0; } }
+              .invoice-container { padding: 40px; background: white; }
+            </style>
+          </head>
+          <body>
+            ${printContent}
+            <script>
+              window.print();
+              window.close();
+            </script>
+          </body>
+        </html>
+      `)
+      printWindow.document.close()
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    try {
+      const { default: html2pdf } = await import('html2pdf.js')
+      if (printRef.current) {
+        const element = printRef.current
+        const opt = {
+          margin: 0.5,
+          filename: `invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' },
+        }
+        html2pdf().set(opt).from(element).save()
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Failed to generate PDF. Please try again.')
+    }
   }
 
   const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.rate, 0)
@@ -279,6 +347,50 @@ export default function GeneratorPage() {
                       className="bg-white dark:bg-slate-900"
                     />
                   </div>
+
+                  {/* Logo Upload Section */}
+                  <div className="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <Label className="text-sm font-medium">Company Logo</Label>
+                    <div className="flex flex-col gap-3">
+                      {invoiceData.billFrom.logo ? (
+                        <div className="relative w-full">
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-lg p-4 flex items-center justify-center">
+                            <img
+                              src={invoiceData.billFrom.logo}
+                              alt="Company logo"
+                              className="max-h-24 max-w-full object-contain"
+                            />
+                          </div>
+                          <Button
+                            onClick={removeLogo}
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="w-full cursor-pointer">
+                          <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-6 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex flex-col items-center justify-center gap-2">
+                            <Upload className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              Click to upload logo
+                            </span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                              PNG, JPG or GIF (Max 5MB)
+                            </span>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/gif"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -394,7 +506,7 @@ export default function GeneratorPage() {
           {/* Summary Sidebar */}
           <div className="space-y-6">
             {/* Settings Card */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800 sticky top-8">
+            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Settings</CardTitle>
                 <CardDescription>Currency and rates</CardDescription>
@@ -498,7 +610,10 @@ export default function GeneratorPage() {
 
             {/* Actions */}
             <div className="space-y-2">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-10 rounded-lg shadow-md hover:shadow-lg transition-all">
+              <Button 
+                onClick={() => setShowReview(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-10 rounded-lg shadow-md hover:shadow-lg transition-all"
+              >
                 <ChevronRight className="w-4 h-4" />
                 Review Invoice
               </Button>
@@ -512,6 +627,199 @@ export default function GeneratorPage() {
           </div>
         </div>
       </div>
+
+      {/* Invoice Review Modal */}
+      {showReview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-950 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Invoice Preview</h2>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handlePrint}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print
+                </Button>
+                <Button
+                  onClick={handleDownloadPDF}
+                  size="sm"
+                  className="gap-2 bg-blue-600 hover:bg-blue-700"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF
+                </Button>
+                <Button
+                  onClick={() => setShowReview(false)}
+                  variant="ghost"
+                  size="sm"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Invoice Content */}
+            <div className="p-8 bg-white dark:bg-slate-900" ref={printRef}>
+              <div className="max-w-4xl mx-auto">
+                {/* Header Section */}
+                <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-blue-600">
+                  <div className="flex items-start gap-4">
+                    {invoiceData.billFrom.logo && (
+                      <img
+                        src={invoiceData.billFrom.logo}
+                        alt="Logo"
+                        className="w-24 h-24 object-contain"
+                      />
+                    )}
+                    <div>
+                      <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                        {invoiceData.billFrom.name || 'Company Name'}
+                      </h1>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                        {invoiceData.billFrom.email}
+                      </p>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm">
+                        {invoiceData.billFrom.address}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <h2 className="text-4xl font-bold text-blue-600 mb-4">INVOICE</h2>
+                    <div className="space-y-1 text-sm">
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-white">Invoice No:</span>{' '}
+                        <span className="text-slate-600 dark:text-slate-400">
+                          {invoiceData.invoiceNumber || 'N/A'}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-white">Date:</span>{' '}
+                        <span className="text-slate-600 dark:text-slate-400">{invoiceData.currentDate}</span>
+                      </p>
+                      <p>
+                        <span className="font-semibold text-slate-900 dark:text-white">Due Date:</span>{' '}
+                        <span className="text-slate-600 dark:text-slate-400">{invoiceData.dueDate || 'N/A'}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bill To / Bill From */}
+                <div className="grid grid-cols-2 gap-8 mb-8">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">BILL TO:</h3>
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {invoiceData.billTo.name || 'Client Name'}
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.email}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.address}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">BILL FROM:</h3>
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {invoiceData.billFrom.name || 'Your Name'}
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billFrom.email}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billFrom.address}</p>
+                  </div>
+                </div>
+
+                {/* Items Table */}
+                <div className="mb-8">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-blue-600 text-white">
+                        <th className="text-left py-3 px-4 font-semibold">DESCRIPTION</th>
+                        <th className="text-center py-3 px-4 font-semibold">QTY</th>
+                        <th className="text-right py-3 px-4 font-semibold">RATE</th>
+                        <th className="text-right py-3 px-4 font-semibold">TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoiceData.items.map((item, idx) => (
+                        <tr
+                          key={item.id}
+                          className={`border-b border-slate-200 dark:border-slate-700 ${
+                            idx % 2 === 0 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'
+                          }`}
+                        >
+                          <td className="py-3 px-4">
+                            <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                          </td>
+                          <td className="text-center py-3 px-4 text-slate-900 dark:text-white">
+                            {item.quantity}
+                          </td>
+                          <td className="text-right py-3 px-4 text-slate-900 dark:text-white">
+                            {symbol}
+                            {item.rate.toFixed(2)}
+                          </td>
+                          <td className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">
+                            {symbol}
+                            {(item.quantity * item.rate).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Summary Section */}
+                <div className="flex justify-end mb-8">
+                  <div className="w-full max-w-sm space-y-2">
+                    <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {symbol}
+                        {subtotal.toFixed(2)}
+                      </span>
+                    </div>
+                    {invoiceData.discountRate > 0 && (
+                      <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Discount ({invoiceData.discountRate}%):
+                        </span>
+                        <span className="font-semibold text-red-600 dark:text-red-400">
+                          -{symbol}
+                          {discount.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {invoiceData.taxRate > 0 && (
+                      <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Tax ({invoiceData.taxRate}%):
+                        </span>
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          {symbol}
+                          {tax.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between py-3 bg-blue-600 text-white rounded px-4 font-bold text-lg">
+                      <span>TOTAL:</span>
+                      <span>
+                        {symbol}
+                        {total.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6 text-sm text-slate-600 dark:text-slate-400">
+                  <p className="font-semibold text-slate-900 dark:text-white mb-2">Thank you for your business!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
