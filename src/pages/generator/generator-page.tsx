@@ -56,8 +56,8 @@ export default function GeneratorPage() {
       address: '',
     },
     billFrom: {
-      name: '',
-      email: '',
+      name: 'Sohel Hossain',
+      email: 'sohel19sagor@gmail.com',
       address: '',
       logo: undefined,
     },
@@ -737,24 +737,7 @@ export default function GeneratorPage() {
                 {/* Header Section */}
                 <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-[#06b6d4]">
                   <div className="flex items-start gap-4">
-                    {invoiceData.billFrom.logo && (
-                      <img
-                        src={invoiceData.billFrom.logo}
-                        alt="Logo"
-                        className="w-24 h-24 object-contain"
-                      />
-                    )}
-                    <div>
-                      <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                        {invoiceData.billFrom.name || 'Company Name'}
-                      </h1>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
-                        {invoiceData.billFrom.email}
-                      </p>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm">
-                        {invoiceData.billFrom.address}
-                      </p>
-                    </div>
+                    {/* Bill From Info Removed */}
                   </div>
                   <div className="text-right">
                     <h2 className="text-4xl font-bold text-[#06b6d4] mb-4">INVOICE</h2>
@@ -777,8 +760,8 @@ export default function GeneratorPage() {
                   </div>
                 </div>
 
-                {/* Bill To / Bill From */}
-                <div className="grid grid-cols-2 gap-8 mb-8">
+                {/* Bill To Section */}
+                <div className="mb-8">
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">BILL TO:</h3>
                     <p className="font-semibold text-slate-900 dark:text-white">
@@ -786,14 +769,6 @@ export default function GeneratorPage() {
                     </p>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.email}</p>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.address}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">BILL FROM:</h3>
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {invoiceData.billFrom.name || 'Your Name'}
-                    </p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billFrom.email}</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billFrom.address}</p>
                   </div>
                 </div>
 
