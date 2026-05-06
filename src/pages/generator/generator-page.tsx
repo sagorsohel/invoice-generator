@@ -284,9 +284,26 @@ export default function GeneratorPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Invoice Generator</h1>
-          <p className="text-slate-600">Create professional invoices in minutes</p>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 mb-1 tracking-tight">Invoice Generator</h1>
+            <p className="text-slate-500 font-medium">Create professional invoices in minutes</p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-white/50 px-6 py-3 rounded-2xl border border-slate-200/50 backdrop-blur-sm shadow-sm">
+
+            <img
+              src="/Level_6_IT-CKFkUPiu.webp"
+              alt="Level 6 IT Logo"
+              className="h-10 w-auto object-contain"
+            />
+            <div className="w-px h-8 bg-slate-200"></div>
+            <div className="text-left">
+              <p className="text-xs font-black text-[#06b6d4] uppercase tracking-widest leading-none mb-1">Level Up Your Business With Us</p>
+              <Link to={'https://level6it.com'} className="text-[10px] font-bold text-slate-400">level6it.com</Link>
+            </div>
+
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 items-start">
@@ -475,7 +492,7 @@ export default function GeneratorPage() {
                             className="bg-white text-xs min-h-[60px] resize-none border-slate-200"
                           />
                         </div>
-                        
+
                         <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px]">
                           <div className="text-right">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Item Total</p>
@@ -546,7 +563,7 @@ export default function GeneratorPage() {
                 <Button
                   onClick={addItem}
                   variant="outline"
-                  className="w-full gap-2 border-dashed border-slate-300 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 py-8 text-sm font-black uppercase tracking-widest"
+                  className="w-full gap-2 border-dashed border-slate-300 hover:bg-blue-50 hover:text-[#06b6d4] hover:border-blue-200 py-8 text-sm font-black uppercase tracking-widest"
                 >
                   <Plus className="w-5 h-5" />
                   Add New Item
@@ -791,7 +808,7 @@ export default function GeneratorPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-xl font-black text-blue-600 uppercase tracking-tighter leading-none mb-4">INVOICE</h2>
+                    <h2 className="text-xl font-black text-[#06b6d4] uppercase tracking-tighter leading-none mb-4">INVOICE</h2>
                     <p className="text-sm font-bold text-slate-400  tracking-widest">{invoiceData.billFrom.email || 'REALLYGREATSITE.COM'}</p>
                   </div>
                 </div>
@@ -822,7 +839,7 @@ export default function GeneratorPage() {
                 <div className="flex-1">
                   <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-blue-600 text-white">
+                      <tr className="bg-[#06b6d4] text-white">
                         <th className="py-2 px-4 text-left text-xs font-black uppercase tracking-widest w-12">NO</th>
                         <th className="py-2 px-4 text-left text-xs font-black uppercase tracking-widest">DESCRIPTION</th>
                         <th className="py-2 px-4 text-center text-xs font-black uppercase tracking-widest w-16">QTY</th>
@@ -875,7 +892,7 @@ export default function GeneratorPage() {
                 {/* 4. Grand Total Section */}
                 <div className="flex justify-end mt-8 mb-12">
                   <div className="w-1/2 flex flex-col items-end justify-center">
-                    <div className="bg-blue-600 text-white w-full flex justify-between items-center px-6 py-3 rounded-sm shadow-md">
+                    <div className="bg-[#06b6d4] text-white w-full flex justify-between items-center px-6 py-3 rounded-sm shadow-md">
                       <span className="text-sm font-black uppercase tracking-widest">GRAND TOTAL :</span>
                       <span className="text-2xl font-black">{symbol}{total.toFixed(2)}</span>
                     </div>
@@ -922,19 +939,19 @@ export default function GeneratorPage() {
                     <div className="flex justify-around items-center px-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
-                          <Phone className="w-4 h-4 text-blue-600" />
+                          <Phone className="w-4 h-4 text-[#06b6d4]" />
                         </div>
                         <span className="text-[10px] font-bold text-slate-500">{invoiceData.phoneNumber || '123-456-7890'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
-                          <Mail className="w-4 h-4 text-blue-600" />
+                          <Mail className="w-4 h-4 text-[#06b6d4]" />
                         </div>
                         <span className="text-[10px] font-bold text-slate-500">{invoiceData.billFrom.email || 'hello@reallygreatsite.com'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-blue-600" />
+                          <MapPin className="w-4 h-4 text-[#06b6d4]" />
                         </div>
                         <span className="text-[10px] font-bold text-slate-500">{invoiceData.location || '123 Anywhere St., Any City'}</span>
                       </div>
