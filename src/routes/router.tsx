@@ -14,9 +14,9 @@ const router = createBrowserRouter([
   // 🌐 Website routes (with website layout - sticky navbar & footer)
   {
     path: "/",
-    element: <WebsiteLayout />,
+
     children: [
-      { index: true, element: <HomePage /> },
+      { index: true, element: <GeneratorPage /> },
     ],
   },
 

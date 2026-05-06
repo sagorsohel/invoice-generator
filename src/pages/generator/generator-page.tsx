@@ -53,6 +53,7 @@ interface InvoiceData {
   signatureName?: string
   signatureRole?: string
   phoneNumber?: string
+  location?: string
 }
 
 export default function GeneratorPage() {
@@ -90,6 +91,7 @@ export default function GeneratorPage() {
     signatureName: '',
     signatureRole: '',
     phoneNumber: '',
+    location: '',
   })
 
   const [showReview, setShowReview] = useState(false)
@@ -285,7 +287,7 @@ export default function GeneratorPage() {
           <p className="text-slate-600 dark:text-slate-400">Create professional invoices in minutes</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-6 items-start">
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Description / Note Section (Based on Image) */}
@@ -703,7 +705,6 @@ export default function GeneratorPage() {
                   </Label>
                   <Textarea
                     id="terms"
-
                     placeholder="e.g. Please send payment within 30 days"
                     value={invoiceData.terms}
                     onChange={(e) => updateInvoiceData('terms', e.target.value)}
@@ -736,24 +737,39 @@ export default function GeneratorPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium">
-                    Your Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    placeholder="e.g. +880 123-456789"
-                    value={invoiceData.phoneNumber}
-                    onChange={(e) => updateInvoiceData('phoneNumber', e.target.value)}
-                    className="bg-white dark:bg-slate-900"
-                  />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      Your Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      placeholder="e.g. +880 123-456789"
+                      value={invoiceData.phoneNumber}
+                      onChange={(e) => updateInvoiceData('phoneNumber', e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className="bg-white dark:bg-slate-900"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location" className="text-sm font-medium">
+                      Business Location
+                    </Label>
+                    <Input
+                      id="location"
+                      placeholder="e.g. Dhaka, Bangladesh"
+                      value={invoiceData.location}
+                      onChange={(e) => updateInvoiceData('location', e.target.value)}
+                      className="bg-white dark:bg-slate-900"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Summary Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 sticky top-6 self-start">
             {/* Settings Card */}
             <Card className="shadow-sm border-slate-200 dark:border-slate-800">
               <CardHeader className="pb-4">
@@ -1090,39 +1106,47 @@ export default function GeneratorPage() {
                   </div>
 
                   {/* Contact Info Footer */}
-                  <div className="pt-8 border-t-2 border-slate-200 dark:border-slate-800">
-                    <div className="flex justify-between items-center px-4">
-                      {/* Phone */}
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                          <Phone className="w-4 h-4 text-[#06b6d4]" />
-                        </div>
-                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                          {invoiceData.phoneNumber || invoiceData.billFrom.email || '123-456-7890'}
-                        </span>
-                      </div>
+                  {(invoiceData.phoneNumber || invoiceData.billFrom.email || invoiceData.location) && (
+                    <div className="pt-8 border-t-2 border-slate-200 dark:border-slate-800">
+                      <div className="flex justify-center items-center gap-12 px-4">
+                        {/* Phone */}
+                        {invoiceData.phoneNumber && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                              <Phone className="w-4 h-4 text-[#06b6d4]" />
+                            </div>
+                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                              {invoiceData.phoneNumber}
+                            </span>
+                          </div>
+                        )}
 
-                      {/* Email */}
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                          <Mail className="w-4 h-4 text-[#06b6d4]" />
-                        </div>
-                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                          {invoiceData.billFrom.email || 'hello@reallygreatsite.com'}
-                        </span>
-                      </div>
+                        {/* Email */}
+                        {invoiceData.billFrom.email && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                              <Mail className="w-4 h-4 text-[#06b6d4]" />
+                            </div>
+                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                              {invoiceData.billFrom.email}
+                            </span>
+                          </div>
+                        )}
 
-                      {/* Address */}
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                          <MapPin className="w-4 h-4 text-[#06b6d4]" />
-                        </div>
-                        <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                          {invoiceData.billFrom.address || '123 Anywhere St., Any City'}
-                        </span>
+                        {/* Location */}
+                        {invoiceData.location && (
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
+                              <MapPin className="w-4 h-4 text-[#06b6d4]" />
+                            </div>
+                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                              {invoiceData.location}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
