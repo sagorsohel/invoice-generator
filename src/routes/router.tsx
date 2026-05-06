@@ -5,6 +5,7 @@ import RegisterPage from '../pages/auth/register-page'
 import ForgotPasswordPage from '../pages/auth/forgot-password-page'
 import DashboardPage from '../pages/dashboard/dashboard-page'
 import UserDashboardPage from '../pages/user/user-dashboard-page'
+import GeneratorPage from '../pages/generator/generator-page'
 import AdminPanelLayout from '@/components/admin-panel/admin-panel-layout'
 import UserPanelLayout from '@/components/user-panel/user-panel-layout'
 import { WebsiteLayout } from '@/components/website/website-layout'
@@ -43,6 +44,8 @@ const router = createBrowserRouter([
   },
 
   // 👤 User Auth routes (no layout)
+  { path: "/generator", element: <GeneratorPage /> },
+
   {
     path: "/user/login",
     element: <LoginPage />,
