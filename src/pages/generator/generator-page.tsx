@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer, DollarSign, Coins, Phone, Mail, MapPin } from 'lucide-react'
+import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer, DollarSign, Coins, Phone, Mail, MapPin, Smartphone, Globe, Cpu } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -300,7 +300,7 @@ export default function GeneratorPage() {
             <div className="w-px h-8 bg-slate-200"></div>
             <div className="text-left">
               <p className="text-xs font-black text-[#06b6d4] uppercase tracking-widest leading-none mb-1">Level Up Your Business With Us</p>
-              <Link to={'https://level6it.com'} className="text-[10px] font-bold text-slate-400">level6it.com</Link>
+              <Link to={'https://level6it.com'} className="text-[10px] font-bold text-slate-400">Visit: <span className="text-[#06b6d4] underline">level6it.com</span></Link>
             </div>
 
           </div>
@@ -963,6 +963,56 @@ export default function GeneratorPage() {
           </div>
         </div>
       )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2">Our Premium Services</h2>
+          <div className="w-20 h-1.5 bg-[#06b6d4] mx-auto rounded-full"></div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              title: "Apps Development",
+              desc: "Native & Cross-platform mobile applications built for scale.",
+              icon: <Smartphone className="w-8 h-8" />
+            },
+            {
+              title: "Web Development",
+              desc: "High-performance, responsive websites with modern UX/UI.",
+              icon: <Globe className="w-8 h-8" />
+            },
+            {
+              title: "Custom Solution",
+              desc: "Tailored software architecture to solve complex business problems.",
+              icon: <Cpu className="w-8 h-8" />
+            }
+          ].map((service, i) => (
+            <Link
+              key={i}
+              to="https://level6it.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative bg-white p-8 rounded-3xl border border-slate-200 shadow-sm transition-all duration-500 hover:border-[#06b6d4] hover:shadow-2xl hover:shadow-[#06b6d4]/10 hover:-translate-y-2 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#06b6d4]/10 to-transparent rounded-bl-[100px] transition-all group-hover:w-32 group-hover:h-32"></div>
+
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-[#06b6d4]/5 rounded-2xl flex items-center justify-center text-[#06b6d4] mb-6 transition-all group-hover:bg-[#06b6d4] group-hover:text-white group-hover:rotate-6">
+                  {service.icon}
+                </div>
+
+                <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-[#06b6d4] transition-colors">{service.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-6">{service.desc}</p>
+
+                <div className="flex items-center gap-2 text-[#06b6d4] font-black text-xs uppercase tracking-widest opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                  Discover More <ChevronRight className="w-4 h-4" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className='text-center py-10'>
         <p className="text-slate-600 text-xs font-medium">This site made and maintain by <Link to="https://level6it.com" target="_blank" rel="noopener noreferrer" className='text-[#06b6d4] hover:underline'>Level6it.com</Link> </p>
