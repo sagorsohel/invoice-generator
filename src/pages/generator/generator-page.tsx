@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,9 +20,9 @@ interface InvoiceItem {
   id: string
   name: string
   description: string
-  quantity: number
-  rate: number
-  discount: number
+  quantity: any
+  rate: any
+  discount: any
 }
 
 type Currency = 'USD' | 'BDT'
@@ -455,117 +455,101 @@ export default function GeneratorPage() {
                 <CardTitle className="text-lg">Line Items</CardTitle>
                 <CardDescription>Add products or services to your invoice</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-slate-200">
-                        <th className="text-left py-3 px-4 font-semibold text-sm text-slate-600">
-                          Item / Description
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600">
-                          QTY
-                        </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
-                          Rate
-                        </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
-                          Disc %
-                        </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
-                          Total
-                        </th>
-                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoiceData.items.map((item) => (
-                        <tr
-                          key={item.id}
-                          className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
-                        >
-                          <td className="py-4 px-4 min-w-[300px]">
-                            <div className="space-y-2">
-                              <Input
-                                placeholder="Item name"
-                                value={item.name}
-                                onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                className="bg-white text-sm font-medium"
-                              />
-                              <textarea
-                                placeholder="Description"
-                                value={item.description}
-                                onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                                className="w-full min-h-[60px] p-2 rounded-md border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
-                              />
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  {invoiceData.items.map((item) => (
+                    <div key={item.id} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm transition-all hover:border-blue-200 hover:shadow-md">
+                      {/* Top Section: Item Identity & Total */}
+                      <div className="bg-slate-50/50 p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between gap-6">
+                        <div className="flex-1 space-y-3">
+                          <Input
+                            placeholder="Item name"
+                            value={item.name}
+                            onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                            className="bg-white font-bold text-slate-900 border-slate-200 h-10"
+                          />
+                          <Textarea
+                            placeholder="Detailed description"
+                            value={item.description}
+                            onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                            className="bg-white text-xs min-h-[60px] resize-none border-slate-200"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 min-w-[140px]">
+                          <div className="text-right">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Item Total</p>
+                            <p className="text-xl font-black text-[#06b6d4]">
+                              {symbol}
+                              {(
+                                (parseFloat(item.quantity?.toString() || '0') *
+                                  parseFloat(item.rate?.toString() || '0')) *
+                                (1 - parseFloat(item.discount?.toString() || '0') / 100)
+                              ).toFixed(2)}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeItem(item.id)}
+                            className="text-slate-400 hover:text-red-600 hover:bg-red-50 gap-2 font-bold text-[10px] uppercase tracking-widest h-8"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Bottom Section: Inputs Grid */}
+                      <div className="p-4 grid grid-cols-3 gap-6 bg-white">
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Qty</Label>
+                          <Input
+                            type="text"
+                            placeholder="0"
+                            value={item.quantity}
+                            onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
+                            onFocus={(e) => e.target.select()}
+                            className="bg-slate-50 border-transparent focus:bg-white focus:border-blue-200 text-sm h-10 font-bold text-slate-700"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Rate</Label>
+                          <div className="relative">
+                            <CurrencyIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
-                              type="number"
-                              min="1"
-                              step="1"
-                              value={item.quantity}
-                              onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                              type="text"
+                              placeholder="0.00"
+                              value={item.rate}
+                              onChange={(e) => updateItem(item.id, 'rate', e.target.value)}
                               onFocus={(e) => e.target.select()}
-                              className="bg-white text-sm text-center"
+                              className="bg-slate-50 border-transparent focus:bg-white focus:border-blue-200 text-sm h-10 pl-9 font-bold text-slate-700"
                             />
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-1">
-                              <CurrencyIcon className="w-4 h-4 text-slate-400" />
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={item.rate}
-                                onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
-                                onFocus={(e) => e.target.select()}
-                                className="bg-white text-sm"
-                              />
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <Input
-                              type="number"
-                              min="0"
-                              max="100"
-                              step="0.1"
-                              value={item.discount}
-                              onChange={(e) => updateItem(item.id, 'discount', parseFloat(e.target.value) || 0)}
-                              onFocus={(e) => e.target.select()}
-                              className="bg-white text-sm text-right"
-                            />
-                          </td>
-                          <td className="py-4 px-4 text-right font-medium text-slate-900">
-                            {symbol}
-                            {((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
-                          </td>
-                          <td className="py-4 px-4 text-center">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeItem(item.id)}
-                              className="hover:bg-red-50 hover:text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Discount %</Label>
+                          <Input
+                            type="text"
+                            placeholder="0"
+                            value={item.discount}
+                            onChange={(e) => updateItem(item.id, 'discount', e.target.value)}
+                            onFocus={(e) => e.target.select()}
+                            className="bg-slate-50 border-transparent focus:bg-white focus:border-blue-200 text-sm h-10 text-right font-bold text-slate-700"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 <Button
                   onClick={addItem}
                   variant="outline"
-                  className="w-full gap-2 border-dashed border-slate-300 hover:bg-slate-50"
+                  className="w-full gap-2 border-dashed border-slate-300 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 py-8 text-sm font-black uppercase tracking-widest"
                 >
-                  <Plus className="w-4 h-4" />
-                  Add Item
+                  <Plus className="w-5 h-5" />
+                  Add New Item
                 </Button>
               </CardContent>
             </Card>
@@ -860,9 +844,13 @@ export default function GeneratorPage() {
                             )}
                           </td>
                           <td className="py-3 px-4 text-center text-sm font-bold text-slate-700">{item.quantity}</td>
-                          <td className="py-3 px-4 text-right text-sm font-bold text-slate-700">{symbol}{item.rate.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right text-sm font-bold text-slate-700">{symbol}{parseFloat(item.rate?.toString() || '0').toFixed(2)}</td>
                           <td className="py-3 px-4 text-right text-sm font-black text-slate-900">
-                            {symbol}{((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
+                            {symbol}{(
+                              (parseFloat(item.quantity?.toString() || '0') *
+                                parseFloat(item.rate?.toString() || '0')) *
+                              (1 - parseFloat(item.discount?.toString() || '0') / 100)
+                            ).toFixed(2)}
                           </td>
                         </tr>
                       ))}
