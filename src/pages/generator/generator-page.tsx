@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Link } from 'react-router'
 
 interface InvoiceItem {
   id: string
@@ -198,14 +200,14 @@ export default function GeneratorPage() {
 
       if (printRef.current) {
         const element = printRef.current
-        
+
         // Clone for clean capture
         const clone = element.cloneNode(true) as HTMLElement
         clone.style.width = '800px'
         clone.style.padding = '40px'
         clone.style.background = 'white'
         clone.classList.remove('dark')
-        
+
         // Add a style block to override oklch variables with hex for html2canvas compatibility
         const styleOverride = document.createElement('style')
         styleOverride.innerHTML = `
@@ -222,7 +224,7 @@ export default function GeneratorPage() {
           }
         `
         clone.prepend(styleOverride)
-        
+
         document.body.appendChild(clone)
 
         // Capture as PNG
@@ -242,7 +244,7 @@ export default function GeneratorPage() {
         const imgProps = pdf.getImageProperties(dataUrl)
         const pdfWidth = pdf.internal.pageSize.getWidth()
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-        
+
         pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight)
         pdf.save(`invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`)
 
@@ -287,19 +289,7 @@ export default function GeneratorPage() {
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Description / Note Section (Based on Image) */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
-              <CardContent className="p-6 space-y-3">
-                <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  Description / Note
-                </Label>
-                <textarea
-                  placeholder="Describe this invoice item..."
-                  value={invoiceData.notes}
-                  onChange={(e) => updateInvoiceData('notes', e.target.value)}
-                  className="w-full min-h-[100px] p-4 rounded-md border border-slate-200 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
-                />
-              </CardContent>
-            </Card>
+
 
             {/* Invoice Header */}
             <Card className="shadow-sm border-slate-200 dark:border-slate-800">
@@ -562,6 +552,7 @@ export default function GeneratorPage() {
                       placeholder="0.00"
                       value={invoiceData.receivedAmount}
                       onChange={(e) => updateInvoiceData('receivedAmount', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => e.target.select()}
                       className="bg-white dark:bg-slate-900 h-11 border-blue-200 focus-visible:ring-blue-500/20"
                     />
                   </div>
@@ -590,10 +581,7 @@ export default function GeneratorPage() {
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800">
                         <th className="text-left py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
-                          Item
-                        </th>
-                        <th className="text-left py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400 hidden sm:table-cell">
-                          Description
+                          Item / Description
                         </th>
                         <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
                           QTY
@@ -618,21 +606,21 @@ export default function GeneratorPage() {
                           key={item.id}
                           className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
                         >
-                          <td className="py-4 px-4">
-                            <Input
-                              placeholder="Item name"
-                              value={item.name}
-                              onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                              className="bg-white dark:bg-slate-900 text-sm"
-                            />
-                          </td>
-                          <td className="py-4 px-4 hidden sm:table-cell">
-                            <Input
-                              placeholder="Description"
-                              value={item.description}
-                              onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                              className="bg-white dark:bg-slate-900 text-sm"
-                            />
+                          <td className="py-4 px-4 min-w-[300px]">
+                            <div className="space-y-2">
+                              <Input
+                                placeholder="Item name"
+                                value={item.name}
+                                onChange={(e) => updateItem(item.id, 'name', e.target.value)}
+                                className="bg-white dark:bg-slate-900 text-sm font-medium"
+                              />
+                              <textarea
+                                placeholder="Description"
+                                value={item.description}
+                                onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                                className="w-full min-h-[60px] p-2 rounded-md border border-slate-200 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
+                              />
+                            </div>
                           </td>
                           <td className="py-4 px-4">
                             <Input
@@ -641,6 +629,7 @@ export default function GeneratorPage() {
                               step="1"
                               value={item.quantity}
                               onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                              onFocus={(e) => e.target.select()}
                               className="bg-white dark:bg-slate-900 text-sm text-center"
                             />
                           </td>
@@ -653,6 +642,7 @@ export default function GeneratorPage() {
                                 step="0.01"
                                 value={item.rate}
                                 onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
+                                onFocus={(e) => e.target.select()}
                                 className="bg-white dark:bg-slate-900 text-sm"
                               />
                             </div>
@@ -665,6 +655,7 @@ export default function GeneratorPage() {
                               step="0.1"
                               value={item.discount}
                               onChange={(e) => updateItem(item.id, 'discount', parseFloat(e.target.value) || 0)}
+                              onFocus={(e) => e.target.select()}
                               className="bg-white dark:bg-slate-900 text-sm text-right"
                             />
                           </td>
@@ -710,8 +701,9 @@ export default function GeneratorPage() {
                   <Label htmlFor="terms" className="text-sm font-medium">
                     Terms and Conditions
                   </Label>
-                  <Input
+                  <Textarea
                     id="terms"
+
                     placeholder="e.g. Please send payment within 30 days"
                     value={invoiceData.terms}
                     onChange={(e) => updateInvoiceData('terms', e.target.value)}
@@ -809,6 +801,7 @@ export default function GeneratorPage() {
                     step="0.1"
                     value={invoiceData.taxRate}
                     onChange={(e) => updateInvoiceData('taxRate', parseFloat(e.target.value) || 0)}
+                    onFocus={(e) => e.target.select()}
                     className="bg-white dark:bg-slate-900"
                   />
                 </div>
@@ -825,6 +818,7 @@ export default function GeneratorPage() {
                     step="0.1"
                     value={invoiceData.discountRate}
                     onChange={(e) => updateInvoiceData('discountRate', parseFloat(e.target.value) || 0)}
+                    onFocus={(e) => e.target.select()}
                     className="bg-white dark:bg-slate-900"
                   />
                 </div>
@@ -877,19 +871,14 @@ export default function GeneratorPage() {
 
             {/* Actions */}
             <div className="space-y-2">
-              <Button 
+              <Button
                 onClick={() => setShowReview(true)}
                 className="w-full bg-[#06b6d4] hover:bg-cyan-600 text-white gap-2 h-10 rounded-lg shadow-md hover:shadow-lg transition-all"
               >
                 <ChevronRight className="w-4 h-4" />
                 Review Invoice
               </Button>
-              <Button
-                variant="outline"
-                className="w-full border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900"
-              >
-                Save as Draft
-              </Button>
+
             </div>
           </div>
         </div>
@@ -975,7 +964,7 @@ export default function GeneratorPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="bg-[#06b6d4] text-white">
-                        <th className="text-left py-3 px-4 font-semibold">DESCRIPTION</th>
+                        <th className="text-left py-3 px-4 font-semibold">ITEM / DESCRIPTION</th>
                         <th className="text-center py-3 px-4 font-semibold">QTY</th>
                         <th className="text-right py-3 px-4 font-semibold">RATE</th>
                         <th className="text-right py-3 px-4 font-semibold">DISC %</th>
@@ -986,9 +975,8 @@ export default function GeneratorPage() {
                       {invoiceData.items.map((item, idx) => (
                         <tr
                           key={item.id}
-                          className={`border-b border-slate-200 dark:border-slate-700 ${
-                            idx % 2 === 0 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'
-                          }`}
+                          className={`border-b border-slate-200 dark:border-slate-700 ${idx % 2 === 0 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'
+                            }`}
                         >
                           <td className="py-3 px-4">
                             <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
@@ -1141,6 +1129,11 @@ export default function GeneratorPage() {
           </div>
         </div>
       )}
+
+
+      <div className='text-center py-10'>
+        <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">This site made and maintain by <Link to="https://level6it.com" target="_blank" rel="noopener noreferrer" className='text-[#06b6d4] hover:underline'>Level6it.com</Link> </p>
+      </div>
     </div>
   )
 }
