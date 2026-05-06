@@ -5,7 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer } from 'lucide-react'
+import { Trash2, Plus, ChevronRight, Upload, X, Download, Printer, DollarSign, Coins } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface InvoiceItem {
   id: string
@@ -14,6 +21,8 @@ interface InvoiceItem {
   quantity: number
   rate: number
 }
+
+type Currency = 'USD' | 'BDT'
 
 interface InvoiceData {
   invoiceNumber: string
@@ -31,7 +40,7 @@ interface InvoiceData {
     logo?: string
   }
   items: InvoiceItem[]
-  currency: string
+  currency: Currency
   taxRate: number
   discountRate: number
 }
@@ -69,16 +78,17 @@ export default function GeneratorPage() {
   const [showReview, setShowReview] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
-  const updateInvoiceData = (path: string, value: any) => {
+  const updateInvoiceData = (path: string, value: string | number | undefined) => {
     setInvoiceData((prev) => {
       const keys = path.split('.')
-      const newData = JSON.parse(JSON.stringify(prev))
+      const newData = { ...prev } as any
       let current = newData
       for (let i = 0; i < keys.length - 1; i++) {
+        current[keys[i]] = { ...current[keys[i]] }
         current = current[keys[i]]
       }
       current[keys[keys.length - 1]] = value
-      return newData
+      return newData as InvoiceData
     })
   }
 
@@ -103,7 +113,7 @@ export default function GeneratorPage() {
     }))
   }
 
-  const updateItem = (id: string, field: string, value: any) => {
+  const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
     setInvoiceData((prev) => ({
       ...prev,
       items: prev.items.map((item) =>
@@ -128,30 +138,39 @@ export default function GeneratorPage() {
   }
 
   const handlePrint = () => {
-    const printWindow = window.open('', '', 'width=900,height=1200')
-    if (printWindow && printRef.current) {
-      const printContent = printRef.current.innerHTML
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Invoice ${invoiceData.invoiceNumber}</title>
-            <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
-              @media print { body { margin: 0; padding: 0; } }
-              .invoice-container { padding: 40px; background: white; }
-            </style>
-          </head>
-          <body>
-            ${printContent}
-            <script>
-              window.print();
-              window.close();
-            </script>
-          </body>
-        </html>
-      `)
-      printWindow.document.close()
+    if (printRef.current) {
+      const content = printRef.current.innerHTML
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Invoice - ${invoiceData.invoiceNumber}</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <style>
+                @page { size: auto; margin: 0mm; }
+                body { margin: 0; padding: 20px; }
+                .print-container { width: 100%; max-width: 800px; margin: 0 auto; }
+                * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              </style>
+            </head>
+            <body>
+              <div class="print-container">
+                ${content}
+              </div>
+              <script>
+                window.onload = () => {
+                  setTimeout(() => {
+                    window.print();
+                    window.close();
+                  }, 500);
+                };
+              </script>
+            </body>
+          </html>
+        `)
+        printWindow.document.close()
+      }
     }
   }
 
@@ -161,13 +180,28 @@ export default function GeneratorPage() {
       if (printRef.current) {
         const element = printRef.current
         const opt = {
-          margin: 0.5,
+          margin: [0.5, 0.5],
           filename: `invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' },
+          html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            letterRendering: true
+          },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         }
-        html2pdf().set(opt).from(element).save()
+        
+        // Temporarily adjust styles for better PDF capture
+        const originalStyle = element.style.cssText
+        element.style.width = '800px'
+        element.style.padding = '40px'
+        
+        await html2pdf().set(opt).from(element).save()
+        
+        // Restore styles
+        element.style.cssText = originalStyle
       }
     } catch (error) {
       console.error('Error generating PDF:', error)
@@ -180,15 +214,14 @@ export default function GeneratorPage() {
   const tax = ((subtotal - discount) * invoiceData.taxRate) / 100
   const total = subtotal - discount + tax
 
-  const currencySymbols: { [key: string]: string } = {
+  const currencySymbols: Record<Currency, string> = {
     USD: '$',
-    EUR: '€',
-    GBP: '£',
-    JPY: '¥',
-    INR: '₹',
+    BDT: '৳',
   }
 
   const symbol = currencySymbols[invoiceData.currency] || '$'
+
+  const CurrencyIcon = invoiceData.currency === 'USD' ? DollarSign : Coins
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
@@ -256,7 +289,7 @@ export default function GeneratorPage() {
               <Card className="shadow-sm border-slate-200 dark:border-slate-800">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
                     Bill To
                   </CardTitle>
                   <CardDescription>Client information</CardDescription>
@@ -305,7 +338,7 @@ export default function GeneratorPage() {
               <Card className="shadow-sm border-slate-200 dark:border-slate-800">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
                     Bill From
                   </CardTitle>
                   <CardDescription>Your information</CardDescription>
@@ -459,8 +492,8 @@ export default function GeneratorPage() {
                             />
                           </td>
                           <td className="py-4 px-4">
-                            <div className="flex items-center">
-                              <span className="text-slate-500 text-sm mr-2">{symbol}</span>
+                            <div className="flex items-center gap-1">
+                              <CurrencyIcon className="w-4 h-4 text-slate-400" />
                               <Input
                                 type="number"
                                 min="0"
@@ -516,18 +549,28 @@ export default function GeneratorPage() {
                   <Label htmlFor="currency" className="text-sm font-medium">
                     Currency
                   </Label>
-                  <select
-                    id="currency"
+                  <Select
                     value={invoiceData.currency}
-                    onChange={(e) => updateInvoiceData('currency', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+                    onValueChange={(value) => updateInvoiceData('currency', value as Currency)}
                   >
-                    <option value="USD">USD (United States Dollar)</option>
-                    <option value="EUR">EUR (Euro)</option>
-                    <option value="GBP">GBP (British Pound)</option>
-                    <option value="JPY">JPY (Japanese Yen)</option>
-                    <option value="INR">INR (Indian Rupee)</option>
-                  </select>
+                    <SelectTrigger id="currency" className="bg-white dark:bg-slate-900">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-slate-500" />
+                          <span>USD (United States Dollar)</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="BDT">
+                        <div className="flex items-center gap-2">
+                          <Coins className="w-4 h-4 text-slate-500" />
+                          <span>BDT (Bangladeshi Taka)</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -565,12 +608,12 @@ export default function GeneratorPage() {
             </Card>
 
             {/* Summary Card */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border-blue-100 dark:border-slate-700">
+            <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-gradient-to-br from-cyan-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border-cyan-100 dark:border-slate-700">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-blue-100 dark:border-slate-700">
+                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
                   <span className="text-sm text-slate-600 dark:text-slate-400">Subtotal</span>
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {symbol}
@@ -578,7 +621,7 @@ export default function GeneratorPage() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-blue-100 dark:border-slate-700">
+                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     Discount ({invoiceData.discountRate}%)
                   </span>
@@ -588,7 +631,7 @@ export default function GeneratorPage() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-blue-100 dark:border-slate-700">
+                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     Tax ({invoiceData.taxRate}%)
                   </span>
@@ -598,10 +641,10 @@ export default function GeneratorPage() {
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-3 bg-blue-100 dark:bg-slate-700 rounded-lg px-3 mt-4">
+                <div className="flex justify-between items-center py-3 bg-cyan-100 dark:bg-slate-700 rounded-lg px-3 mt-4">
                   <span className="font-semibold text-slate-900 dark:text-white">Total</span>
-                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                    {symbol}
+                  <span className="text-xl font-bold text-[#06b6d4] dark:text-cyan-400 flex items-center gap-1">
+                    <CurrencyIcon className="w-5 h-5" />
                     {total.toFixed(2)}
                   </span>
                 </div>
@@ -612,7 +655,7 @@ export default function GeneratorPage() {
             <div className="space-y-2">
               <Button 
                 onClick={() => setShowReview(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2 h-10 rounded-lg shadow-md hover:shadow-lg transition-all"
+                className="w-full bg-[#06b6d4] hover:bg-cyan-600 text-white gap-2 h-10 rounded-lg shadow-md hover:shadow-lg transition-all"
               >
                 <ChevronRight className="w-4 h-4" />
                 Review Invoice
@@ -648,7 +691,7 @@ export default function GeneratorPage() {
                 <Button
                   onClick={handleDownloadPDF}
                   size="sm"
-                  className="gap-2 bg-blue-600 hover:bg-blue-700"
+                  className="gap-2 bg-[#06b6d4] hover:bg-cyan-600"
                 >
                   <Download className="w-4 h-4" />
                   Download PDF
@@ -667,7 +710,7 @@ export default function GeneratorPage() {
             <div className="p-8 bg-white dark:bg-slate-900" ref={printRef}>
               <div className="max-w-4xl mx-auto">
                 {/* Header Section */}
-                <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-blue-600">
+                <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-[#06b6d4]">
                   <div className="flex items-start gap-4">
                     {invoiceData.billFrom.logo && (
                       <img
@@ -689,7 +732,7 @@ export default function GeneratorPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-4xl font-bold text-blue-600 mb-4">INVOICE</h2>
+                    <h2 className="text-4xl font-bold text-[#06b6d4] mb-4">INVOICE</h2>
                     <div className="space-y-1 text-sm">
                       <p>
                         <span className="font-semibold text-slate-900 dark:text-white">Invoice No:</span>{' '}
@@ -729,11 +772,10 @@ export default function GeneratorPage() {
                   </div>
                 </div>
 
-                {/* Items Table */}
-                <div className="mb-8">
+                <div className="mb-8 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-blue-600 text-white">
+                      <tr className="bg-[#06b6d4] text-white">
                         <th className="text-left py-3 px-4 font-semibold">DESCRIPTION</th>
                         <th className="text-center py-3 px-4 font-semibold">QTY</th>
                         <th className="text-right py-3 px-4 font-semibold">RATE</th>
@@ -801,7 +843,7 @@ export default function GeneratorPage() {
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between py-3 bg-blue-600 text-white rounded px-4 font-bold text-lg">
+                    <div className="flex justify-between py-3 bg-[#06b6d4] text-white rounded px-4 font-bold text-lg">
                       <span>TOTAL:</span>
                       <span>
                         {symbol}
