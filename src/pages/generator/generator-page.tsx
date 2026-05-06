@@ -176,36 +176,61 @@ export default function GeneratorPage() {
 
   const handleDownloadPDF = async () => {
     try {
-      const { default: html2pdf } = await import('html2pdf.js')
+      const { toPng } = await import('html-to-image')
+      const { jsPDF } = await import('jspdf')
+
       if (printRef.current) {
         const element = printRef.current
-        const opt = {
-          margin: [0.5, 0.5],
-          filename: `invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false,
-            letterRendering: true
-          },
-          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        }
         
-        // Temporarily adjust styles for better PDF capture
-        const originalStyle = element.style.cssText
-        element.style.width = '800px'
-        element.style.padding = '40px'
+        // Clone for clean capture
+        const clone = element.cloneNode(true) as HTMLElement
+        clone.style.width = '800px'
+        clone.style.padding = '40px'
+        clone.style.background = 'white'
+        clone.classList.remove('dark')
         
-        await html2pdf().set(opt).from(element).save()
+        // Remove oklch dependencies in the clone by forcing hex colors
+        const styleOverride = document.createElement('style')
+        styleOverride.innerHTML = `
+          * { 
+            color-scheme: light !important;
+            --background: #ffffff !important;
+            --foreground: #020617 !important;
+            --primary: #06b6d4 !important;
+            --border: #e2e8f0 !important;
+          }
+        `
+        clone.prepend(styleOverride)
         
-        // Restore styles
-        element.style.cssText = originalStyle
+        document.body.appendChild(clone)
+
+        // Capture as PNG
+        const dataUrl = await toPng(clone, {
+          quality: 1,
+          pixelRatio: 2,
+          backgroundColor: '#ffffff',
+        })
+
+        // Create PDF
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [800, 1131], // A4 aspect ratio for 800px width
+        })
+
+        const imgProps = pdf.getImageProperties(dataUrl)
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+        
+        pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight)
+        pdf.save(`invoice-${invoiceData.invoiceNumber || 'draft'}.pdf`)
+
+        // Clean up
+        document.body.removeChild(clone)
       }
     } catch (error) {
-      console.error('Error generating PDF:', error)
-      alert('Failed to generate PDF. Please try again.')
+      console.error('Detailed PDF generation error:', error)
+      alert('Failed to generate PDF. Please try again or use the Print button.')
     }
   }
 
