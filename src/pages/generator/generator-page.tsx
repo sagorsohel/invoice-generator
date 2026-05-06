@@ -41,6 +41,7 @@ interface InvoiceData {
     email: string
     address: string
     logo?: string
+    tagline?: string
   }
   items: InvoiceItem[]
   currency: Currency
@@ -54,6 +55,7 @@ interface InvoiceData {
   signatureRole?: string
   phoneNumber?: string
   location?: string
+  reference?: string
 }
 
 export default function GeneratorPage() {
@@ -67,8 +69,8 @@ export default function GeneratorPage() {
       address: '',
     },
     billFrom: {
-      name: 'Sohel Hossain',
-      email: 'sohel19sagor@gmail.com',
+      name: '',
+      email: '',
       address: '',
       logo: undefined,
     },
@@ -279,72 +281,21 @@ export default function GeneratorPage() {
   const CurrencyIcon = invoiceData.currency === 'USD' ? DollarSign : Coins
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">Invoice Generator</h1>
-          <p className="text-slate-600 dark:text-slate-400">Create professional invoices in minutes</p>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Invoice Generator</h1>
+          <p className="text-slate-600">Create professional invoices in minutes</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 items-start">
-          {/* Main Form */}
+          {/* Main Form Left Panel */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Description / Note Section (Based on Image) */}
-
-
-            {/* Invoice Header */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg">Invoice Details</CardTitle>
-                <CardDescription>Basic invoice information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="invoice-number" className="text-sm font-medium">
-                      Invoice Number
-                    </Label>
-                    <Input
-                      id="invoice-number"
-                      placeholder="INV-001"
-                      value={invoiceData.invoiceNumber}
-                      onChange={(e) => updateInvoiceData('invoiceNumber', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="current-date" className="text-sm font-medium">
-                      Current Date
-                    </Label>
-                    <Input
-                      id="current-date"
-                      type="date"
-                      value={invoiceData.currentDate}
-                      onChange={(e) => updateInvoiceData('currentDate', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="due-date" className="text-sm font-medium">
-                      Due Date
-                    </Label>
-                    <Input
-                      id="due-date"
-                      type="date"
-                      value={invoiceData.dueDate}
-                      onChange={(e) => updateInvoiceData('dueDate', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Bill To / Bill From */}
             <div className="grid sm:grid-cols-2 gap-6">
               {/* Bill To */}
-              <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+              <Card className="shadow-sm border-slate-200">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
@@ -362,7 +313,7 @@ export default function GeneratorPage() {
                       placeholder="Client name"
                       value={invoiceData.billTo.name}
                       onChange={(e) => updateInvoiceData('billTo.name', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -374,7 +325,7 @@ export default function GeneratorPage() {
                       placeholder="client@example.com"
                       value={invoiceData.billTo.email}
                       onChange={(e) => updateInvoiceData('billTo.email', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -386,14 +337,14 @@ export default function GeneratorPage() {
                       placeholder="Billing address"
                       value={invoiceData.billTo.address}
                       onChange={(e) => updateInvoiceData('billTo.address', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Bill From */}
-              <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+              <Card className="shadow-sm border-slate-200">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
@@ -404,14 +355,14 @@ export default function GeneratorPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="bill-from-name" className="text-sm font-medium">
-                      Name
+                      Company / Your Name
                     </Label>
                     <Input
                       id="bill-from-name"
-                      placeholder="Your name"
+                      placeholder="e.g. Studio Shodwe"
                       value={invoiceData.billFrom.name}
                       onChange={(e) => updateInvoiceData('billFrom.name', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -423,7 +374,7 @@ export default function GeneratorPage() {
                       placeholder="your@example.com"
                       value={invoiceData.billFrom.email}
                       onChange={(e) => updateInvoiceData('billFrom.email', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -435,17 +386,29 @@ export default function GeneratorPage() {
                       placeholder="Your address"
                       value={invoiceData.billFrom.address}
                       onChange={(e) => updateInvoiceData('billFrom.address', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bill-from-tagline" className="text-sm font-medium">
+                      Company Tagline / Specialty
+                    </Label>
+                    <Input
+                      id="bill-from-tagline"
+                      placeholder="e.g. Creative Agency"
+                      value={invoiceData.billFrom.tagline}
+                      onChange={(e) => updateInvoiceData('billFrom.tagline', e.target.value)}
+                      className="bg-white"
                     />
                   </div>
 
                   {/* Logo Upload Section */}
-                  <div className="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <div className="space-y-2 border-t border-slate-200 pt-4">
                     <Label className="text-sm font-medium">Company Logo</Label>
                     <div className="flex flex-col gap-3">
                       {invoiceData.billFrom.logo ? (
                         <div className="relative w-full">
-                          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-lg p-4 flex items-center justify-center">
+                          <div className="w-full bg-slate-100 rounded-lg p-4 flex items-center justify-center">
                             <img
                               src={invoiceData.billFrom.logo}
                               alt="Company logo"
@@ -456,19 +419,19 @@ export default function GeneratorPage() {
                             onClick={removeLogo}
                             variant="ghost"
                             size="icon"
-                            className="absolute top-2 right-2 bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400"
+                            className="absolute top-2 right-2 bg-red-50 hover:bg-red-100 text-red-600"
                           >
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
                       ) : (
                         <label className="w-full cursor-pointer">
-                          <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-6 hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex flex-col items-center justify-center gap-2">
-                            <Upload className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 hover:border-slate-400 hover:bg-slate-50 transition-colors flex flex-col items-center justify-center gap-2">
+                            <Upload className="w-5 h-5 text-slate-500" />
+                            <span className="text-sm font-medium text-slate-700">
                               Click to upload logo
                             </span>
-                            <span className="text-xs text-slate-500 dark:text-slate-400">
+                            <span className="text-xs text-slate-500">
                               PNG, JPG or GIF (Max 5MB)
                             </span>
                           </div>
@@ -486,93 +449,8 @@ export default function GeneratorPage() {
               </Card>
             </div>
 
-            {/* Payment Details Section (Based on Image) */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800 overflow-hidden">
-              <CardHeader className="pb-4 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#06b6d4]"></div>
-                  Payment Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 space-y-6">
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <ChevronRight className="w-3 h-3" />
-                      INV Number
-                    </Label>
-                    <Input
-                      placeholder="Invoice #"
-                      value={invoiceData.invoiceNumber}
-                      onChange={(e) => updateInvoiceData('invoiceNumber', e.target.value)}
-                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <ChevronRight className="w-3 h-3" />
-                      INV Date
-                    </Label>
-                    <Input
-                      type="date"
-                      value={invoiceData.currentDate}
-                      onChange={(e) => updateInvoiceData('currentDate', e.target.value)}
-                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <ChevronRight className="w-3 h-3" />
-                      Account #
-                    </Label>
-                    <Input
-                      placeholder="A/C Number"
-                      value={invoiceData.accountNumber}
-                      onChange={(e) => updateInvoiceData('accountNumber', e.target.value)}
-                      className="bg-white dark:bg-slate-900 h-11 border-slate-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      Invoice Total
-                    </Label>
-                    <div className="h-11 flex items-center px-4 rounded-md border border-slate-200 bg-slate-50/50 dark:bg-slate-900/50 font-bold text-slate-900 dark:text-white">
-                      {symbol}{total.toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      Received Amount
-                    </Label>
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      value={invoiceData.receivedAmount}
-                      onChange={(e) => updateInvoiceData('receivedAmount', parseFloat(e.target.value) || 0)}
-                      onFocus={(e) => e.target.select()}
-                      className="bg-white dark:bg-slate-900 h-11 border-blue-200 focus-visible:ring-blue-500/20"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-1">
-                      <ChevronRight className="w-3 h-3 rotate-90" />
-                      Due Amount
-                    </Label>
-                    <div className="h-11 flex items-center px-4 rounded-md border border-red-100 bg-red-50/30 dark:bg-red-900/10 font-bold text-red-600">
-                      {symbol}{dueAmount.toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Items */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+            <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Line Items</CardTitle>
                 <CardDescription>Add products or services to your invoice</CardDescription>
@@ -581,23 +459,23 @@ export default function GeneratorPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-200 dark:border-slate-800">
-                        <th className="text-left py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left py-3 px-4 font-semibold text-sm text-slate-600">
                           Item / Description
                         </th>
-                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600">
                           QTY
                         </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
                           Rate
                         </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
                           Disc %
                         </th>
-                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                        <th className="text-right py-3 px-4 font-semibold text-sm text-slate-600">
                           Total
                         </th>
-                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600 dark:text-slate-400">
+                        <th className="text-center py-3 px-4 font-semibold text-sm text-slate-600">
                           Action
                         </th>
                       </tr>
@@ -606,7 +484,7 @@ export default function GeneratorPage() {
                       {invoiceData.items.map((item) => (
                         <tr
                           key={item.id}
-                          className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                          className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
                         >
                           <td className="py-4 px-4 min-w-[300px]">
                             <div className="space-y-2">
@@ -614,13 +492,13 @@ export default function GeneratorPage() {
                                 placeholder="Item name"
                                 value={item.name}
                                 onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                                className="bg-white dark:bg-slate-900 text-sm font-medium"
+                                className="bg-white text-sm font-medium"
                               />
                               <textarea
                                 placeholder="Description"
                                 value={item.description}
                                 onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                                className="w-full min-h-[60px] p-2 rounded-md border border-slate-200 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
+                                className="w-full min-h-[60px] p-2 rounded-md border border-slate-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-[#06b6d4]/20 resize-none transition-all"
                               />
                             </div>
                           </td>
@@ -632,7 +510,7 @@ export default function GeneratorPage() {
                               value={item.quantity}
                               onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                               onFocus={(e) => e.target.select()}
-                              className="bg-white dark:bg-slate-900 text-sm text-center"
+                              className="bg-white text-sm text-center"
                             />
                           </td>
                           <td className="py-4 px-4">
@@ -645,7 +523,7 @@ export default function GeneratorPage() {
                                 value={item.rate}
                                 onChange={(e) => updateItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
                                 onFocus={(e) => e.target.select()}
-                                className="bg-white dark:bg-slate-900 text-sm"
+                                className="bg-white text-sm"
                               />
                             </div>
                           </td>
@@ -658,10 +536,10 @@ export default function GeneratorPage() {
                               value={item.discount}
                               onChange={(e) => updateItem(item.id, 'discount', parseFloat(e.target.value) || 0)}
                               onFocus={(e) => e.target.select()}
-                              className="bg-white dark:bg-slate-900 text-sm text-right"
+                              className="bg-white text-sm text-right"
                             />
                           </td>
-                          <td className="py-4 px-4 text-right font-medium text-slate-900 dark:text-white">
+                          <td className="py-4 px-4 text-right font-medium text-slate-900">
                             {symbol}
                             {((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
                           </td>
@@ -670,7 +548,7 @@ export default function GeneratorPage() {
                               variant="ghost"
                               size="icon"
                               onClick={() => removeItem(item.id)}
-                              className="hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400"
+                              className="hover:bg-red-50 hover:text-red-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -684,7 +562,7 @@ export default function GeneratorPage() {
                 <Button
                   onClick={addItem}
                   variant="outline"
-                  className="w-full gap-2 border-dashed border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900"
+                  className="w-full gap-2 border-dashed border-slate-300 hover:bg-slate-50"
                 >
                   <Plus className="w-4 h-4" />
                   Add Item
@@ -693,7 +571,7 @@ export default function GeneratorPage() {
             </Card>
 
             {/* Additional Information */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+            <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Additional Information</CardTitle>
                 <CardDescription>Add terms, conditions and signature info</CardDescription>
@@ -708,7 +586,7 @@ export default function GeneratorPage() {
                     placeholder="e.g. Please send payment within 30 days"
                     value={invoiceData.terms}
                     onChange={(e) => updateInvoiceData('terms', e.target.value)}
-                    className="bg-white dark:bg-slate-900"
+                    className="bg-white"
                   />
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -721,7 +599,7 @@ export default function GeneratorPage() {
                       placeholder="e.g. Henrietta Mitchell"
                       value={invoiceData.signatureName}
                       onChange={(e) => updateInvoiceData('signatureName', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -733,7 +611,7 @@ export default function GeneratorPage() {
                       placeholder="e.g. Administrator"
                       value={invoiceData.signatureRole}
                       onChange={(e) => updateInvoiceData('signatureRole', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                 </div>
@@ -748,7 +626,7 @@ export default function GeneratorPage() {
                       value={invoiceData.phoneNumber}
                       onChange={(e) => updateInvoiceData('phoneNumber', e.target.value)}
                       onFocus={(e) => e.target.select()}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -760,7 +638,7 @@ export default function GeneratorPage() {
                       placeholder="e.g. Dhaka, Bangladesh"
                       value={invoiceData.location}
                       onChange={(e) => updateInvoiceData('location', e.target.value)}
-                      className="bg-white dark:bg-slate-900"
+                      className="bg-white"
                     />
                   </div>
                 </div>
@@ -771,10 +649,10 @@ export default function GeneratorPage() {
           {/* Summary Sidebar */}
           <div className="space-y-6 sticky top-6 self-start">
             {/* Settings Card */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800">
+            <Card className="shadow-sm border-slate-200">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Settings</CardTitle>
-                <CardDescription>Currency and rates</CardDescription>
+                <CardDescription>Currency and references</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -785,7 +663,7 @@ export default function GeneratorPage() {
                     value={invoiceData.currency}
                     onValueChange={(value) => updateInvoiceData('currency', value as Currency)}
                   >
-                    <SelectTrigger id="currency" className="bg-white dark:bg-slate-900">
+                    <SelectTrigger id="currency" className="bg-white">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
                     <SelectContent>
@@ -804,80 +682,56 @@ export default function GeneratorPage() {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="tax-rate" className="text-sm font-medium">
-                    Tax Rate (%)
+                  <Label htmlFor="reference" className="text-sm font-medium">
+                    Project / Reference
                   </Label>
                   <Input
-                    id="tax-rate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={invoiceData.taxRate}
-                    onChange={(e) => updateInvoiceData('taxRate', parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => e.target.select()}
-                    className="bg-white dark:bg-slate-900"
+                    id="reference"
+                    placeholder="e.g. Website Redesign"
+                    value={invoiceData.reference || ''}
+                    onChange={(e) => updateInvoiceData('reference', e.target.value)}
+                    className="bg-white"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="discount-rate" className="text-sm font-medium">
-                    Discount Rate (%)
+                  <Label htmlFor="received-amount" className="text-sm font-medium">
+                    Amount Received
                   </Label>
-                  <Input
-                    id="discount-rate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={invoiceData.discountRate}
-                    onChange={(e) => updateInvoiceData('discountRate', parseFloat(e.target.value) || 0)}
-                    onFocus={(e) => e.target.select()}
-                    className="bg-white dark:bg-slate-900"
-                  />
+                  <div className="relative">
+                    <CurrencyIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      id="received-amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={invoiceData.receivedAmount}
+                      onChange={(e) => updateInvoiceData('receivedAmount', parseFloat(e.target.value) || 0)}
+                      onFocus={(e) => e.target.select()}
+                      className="bg-white pl-9"
+                    />
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Summary Card */}
-            <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-gradient-to-br from-cyan-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border-cyan-100 dark:border-slate-700">
+            <Card className="shadow-sm border-slate-200 bg-gradient-to-br from-cyan-50 to-indigo-50 border-cyan-100">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Subtotal</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
-                    {symbol}
-                    {subtotal.toFixed(2)}
-                  </span>
+                <div className="flex justify-between items-center py-2 border-b border-cyan-100">
+                  <div className="flex justify-between text-sm w-full">
+                    <span className="text-slate-500">Subtotal</span>
+                    <span className="font-medium text-slate-900">{symbol}{subtotal.toFixed(2)}</span>
+                  </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    Discount ({invoiceData.discountRate}%)
-                  </span>
-                  <span className="font-semibold text-red-600 dark:text-red-400">
-                    -{symbol}
-                    {discount.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-2 border-b border-cyan-100 dark:border-slate-700">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    Tax ({invoiceData.taxRate}%)
-                  </span>
-                  <span className="font-semibold text-slate-900 dark:text-white">
-                    {symbol}
-                    {tax.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center py-3 bg-cyan-100 dark:bg-slate-700 rounded-lg px-3 mt-4">
-                  <span className="font-semibold text-slate-900 dark:text-white">Total</span>
-                  <span className="text-xl font-bold text-[#06b6d4] dark:text-cyan-400 flex items-center gap-1">
+                <div className="flex justify-between items-center py-3 bg-cyan-100 rounded-lg px-3 mt-4">
+                  <span className="font-semibold text-slate-900">Total</span>
+                  <span className="text-xl font-bold text-[#06b6d4] flex items-center gap-1">
                     <CurrencyIcon className="w-5 h-5" />
                     {total.toFixed(2)}
                   </span>
@@ -903,10 +757,10 @@ export default function GeneratorPage() {
       {/* Invoice Review Modal */}
       {showReview && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-950 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Invoice Preview</h2>
+            <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-slate-900">Invoice Preview</h2>
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handlePrint}
@@ -934,219 +788,170 @@ export default function GeneratorPage() {
                 </Button>
               </div>
             </div>
-
             {/* Invoice Content */}
-            <div className="p-8 bg-white dark:bg-slate-900" ref={printRef}>
-              <div className="max-w-4xl mx-auto">
-                {/* Header Section */}
-                <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-[#06b6d4]">
+            <div className="p-0 bg-slate-100/50" ref={printRef}>
+              <div className="bg-white mx-auto w-[800px] min-h-[1130px] p-12 shadow-sm text-slate-900 relative flex flex-col">
+                {/* 1. Brand Header */}
+                <div className="flex justify-between items-start mb-12">
                   <div className="flex items-start gap-4">
-                    {/* Bill From Info Removed */}
+                    {invoiceData.billFrom.logo && (
+                      <img src={invoiceData.billFrom.logo} alt="Logo" className="w-16 h-16 object-contain" />
+                    )}
+                    <div>
+                      <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">
+                        {invoiceData.billFrom.name || ''}
+                      </h1>
+                      <p className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">
+                        {invoiceData.billFrom.tagline || ''}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-4xl font-bold text-[#06b6d4] mb-4">INVOICE</h2>
-                    <div className="space-y-1 text-sm">
-                      <p>
-                        <span className="font-semibold text-slate-900 dark:text-white">Invoice No:</span>{' '}
-                        <span className="text-slate-600 dark:text-slate-400">
-                          {invoiceData.invoiceNumber || 'N/A'}
-                        </span>
+                    <h2 className="text-xl font-black text-blue-600 uppercase tracking-tighter leading-none mb-4">INVOICE</h2>
+                    <p className="text-sm font-bold text-slate-400  tracking-widest">{invoiceData.billFrom.email || 'REALLYGREATSITE.COM'}</p>
+                  </div>
+                </div>
+
+                {/* 2. Metadata Section */}
+                <div className="grid grid-cols-2 gap-12 mb-10 border-t border-slate-200 pt-8">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-widest">Invoice to :</h3>
+                    <p className="text-xl font-black text-slate-900 mb-1">{invoiceData.billTo.name || ''}</p>
+                    <div className="text-sm text-slate-500 space-y-0.5 font-medium">
+                      <p>{invoiceData.phoneNumber || ''}</p>
+                      <p>{invoiceData.billTo.email || ''}</p>
+                      <p>{invoiceData.billTo.address || ''}</p>
+                    </div>
+                  </div>
+                  <div className="text-right flex flex-col justify-end">
+                    <div className="space-y-1">
+                      <p className="text-xl font-black text-slate-900">
+                        <span className="text-slate-400 mr-2">Invoice no :</span>
+                        {invoiceData.invoiceNumber || '12345'}
                       </p>
-                      <p>
-                        <span className="font-semibold text-slate-900 dark:text-white">Date:</span>{' '}
-                        <span className="text-slate-600 dark:text-slate-400">{invoiceData.currentDate}</span>
-                      </p>
-                      <p>
-                        <span className="font-semibold text-slate-900 dark:text-white">Due Date:</span>{' '}
-                        <span className="text-slate-600 dark:text-slate-400">{invoiceData.dueDate || 'N/A'}</span>
-                      </p>
+                      <p className="text-sm font-bold text-slate-500">{invoiceData.currentDate}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Bill To Section */}
-                <div className="mb-8">
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white mb-3 text-sm">BILL TO:</h3>
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {invoiceData.billTo.name || 'Client Name'}
-                    </p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.email}</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{invoiceData.billTo.address}</p>
-                  </div>
-                </div>
-
-                <div className="mb-8 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-                  <table className="w-full">
+                {/* 3. Items Table */}
+                <div className="flex-1">
+                  <table className="w-full border-collapse">
                     <thead>
-                      <tr className="bg-[#06b6d4] text-white">
-                        <th className="text-left py-3 px-4 font-semibold">ITEM / DESCRIPTION</th>
-                        <th className="text-center py-3 px-4 font-semibold">QTY</th>
-                        <th className="text-right py-3 px-4 font-semibold">RATE</th>
-                        <th className="text-right py-3 px-4 font-semibold">DISC %</th>
-                        <th className="text-right py-3 px-4 font-semibold">TOTAL</th>
+                      <tr className="bg-blue-600 text-white">
+                        <th className="py-2 px-4 text-left text-xs font-black uppercase tracking-widest w-12">NO</th>
+                        <th className="py-2 px-4 text-left text-xs font-black uppercase tracking-widest">DESCRIPTION</th>
+                        <th className="py-2 px-4 text-center text-xs font-black uppercase tracking-widest w-16">QTY</th>
+                        <th className="py-2 px-4 text-right text-xs font-black uppercase tracking-widest w-24">PRICE</th>
+                        <th className="py-2 px-4 text-right text-xs font-black uppercase tracking-widest w-32">TOTAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoiceData.items.map((item, idx) => (
                         <tr
                           key={item.id}
-                          className={`border-b border-slate-200 dark:border-slate-700 ${idx % 2 === 0 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-900'
-                            }`}
+                          className={`${idx % 2 === 1 ? 'bg-blue-50/50' : 'bg-white'} border-b border-blue-50`}
                         >
+                          <td className="py-3 px-4 text-sm font-bold text-slate-500">{idx + 1}</td>
                           <td className="py-3 px-4">
-                            <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                            <p className="text-sm font-bold text-slate-900">{item.name}</p>
+                            {item.description && (
+                              <p className="text-xs text-slate-500 mt-0.5">{item.description}</p>
+                            )}
                           </td>
-                          <td className="text-center py-3 px-4 text-slate-900 dark:text-white">
-                            {item.quantity}
-                          </td>
-                          <td className="text-right py-3 px-4 text-slate-900 dark:text-white">
-                            {symbol}
-                            {item.rate.toFixed(2)}
-                          </td>
-                          <td className="text-right py-3 px-4 text-slate-600 dark:text-slate-400">
-                            {item.discount}%
-                          </td>
-                          <td className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">
-                            {symbol}
-                            {((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
+                          <td className="py-3 px-4 text-center text-sm font-bold text-slate-700">{item.quantity}</td>
+                          <td className="py-3 px-4 text-right text-sm font-bold text-slate-700">{symbol}{item.rate.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-right text-sm font-black text-slate-900">
+                            {symbol}{((item.quantity * item.rate) * (1 - item.discount / 100)).toFixed(2)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
 
-                {/* Summary Section */}
-                <div className="flex justify-end mb-12">
-                  <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-                      <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
-                      <span className="font-semibold text-slate-900 dark:text-white">
-                        {symbol}
-                        {subtotal.toFixed(2)}
-                      </span>
+                  {/* Subtotal & Tax Rows */}
+                  <div className="mt-4 space-y-1">
+                    <div className="flex justify-end gap-12 px-4">
+                      <span className="text-sm font-bold text-slate-400 uppercase">Sub Total :</span>
+                      <span className="text-sm font-black text-slate-700 w-32 text-right">{symbol}{subtotal.toFixed(2)}</span>
                     </div>
-                    {invoiceData.discountRate > 0 && (
-                      <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-600 dark:text-slate-400">
-                          Discount ({invoiceData.discountRate}%):
-                        </span>
-                        <span className="font-semibold text-red-600 dark:text-red-400">
-                          -{symbol}
-                          {discount.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
                     {invoiceData.taxRate > 0 && (
-                      <div className="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-                        <span className="text-slate-600 dark:text-slate-400">
-                          Tax ({invoiceData.taxRate}%):
-                        </span>
-                        <span className="font-semibold text-slate-900 dark:text-white">
-                          {symbol}
-                          {tax.toFixed(2)}
-                        </span>
+                      <div className="flex justify-end gap-12 px-4">
+                        <span className="text-sm font-bold text-slate-400 uppercase">Tax {invoiceData.taxRate}% :</span>
+                        <span className="text-sm font-black text-slate-700 w-32 text-right">{symbol}{tax.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between py-3 bg-[#06b6d4] text-white rounded px-4 font-bold text-lg">
-                      <span>TOTAL:</span>
-                      <span>
-                        {symbol}
-                        {total.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-2 px-4 text-slate-600 dark:text-slate-400 font-medium">
-                      <span>Received:</span>
-                      <span>{symbol}{(invoiceData.receivedAmount || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-2 px-4 bg-red-50 dark:bg-red-900/10 text-red-600 font-bold border-t border-red-100 dark:border-red-900/20">
-                      <span>DUE AMOUNT:</span>
-                      <span>{symbol}{dueAmount.toFixed(2)}</span>
-                    </div>
                   </div>
                 </div>
 
-                {/* Footer Section */}
-                <div className="mt-12">
-                  <div className="flex justify-between items-start mb-8">
-                    {/* Terms and Conditions */}
-                    <div className="max-w-[50%]">
-                      {invoiceData.terms && (
+                {/* 4. Grand Total Section */}
+                <div className="flex justify-end mt-8 mb-12">
+                  <div className="w-1/2 flex flex-col items-end justify-center">
+                    <div className="bg-blue-600 text-white w-full flex justify-between items-center px-6 py-3 rounded-sm shadow-md">
+                      <span className="text-sm font-black uppercase tracking-widest">GRAND TOTAL :</span>
+                      <span className="text-2xl font-black">{symbol}{total.toFixed(2)}</span>
+                    </div>
+                    {dueAmount > 0 && (
+                      <div className="mt-2 text-right">
+                        <span className="text-xs font-black text-red-500 uppercase tracking-widest mr-4">BALANCE DUE :</span>
+                        <span className="text-lg font-black text-red-600">{symbol}{dueAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 5. Footer Section */}
+                <div className="space-y-8 mt-auto">
+                  <div className="flex justify-between items-end border-t-2 border-slate-100 pt-8">
+                    <div className="max-w-[60%]">
+                      <p className="text-sm font-black text-slate-900 mb-2 uppercase italic tracking-tight">Thank you for business with us!</p>
+                      {
+                        invoiceData.terms && (
+                          <div className="space-y-1">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Term and Conditions :</h4>
+                            <p className="text-[10px] text-slate-400 leading-relaxed max-w-sm">
+                              {invoiceData.terms}
+                            </p>
+                          </div>
+                        )
+                      }
+                    </div>
+                    <div className="text-center min-w-[200px]">
+                      {invoiceData.signatureName && (
                         <>
-                          <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-sm">Term and Conditions :</h3>
-                          <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
-                            {invoiceData.terms}
+                          <p className="signature-font text-3xl text-slate-400 mb-1" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                            {invoiceData.signatureName}
                           </p>
+                          <p className="text-lg font-black text-slate-900 uppercase leading-none mb-1">{invoiceData.signatureName}</p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{invoiceData.signatureRole || 'Administrator'}</p>
                         </>
                       )}
                     </div>
-
-                    {/* Signature */}
-                    {(invoiceData.signatureName || invoiceData.signatureRole) && (
-                      <div className="text-right">
-                        {invoiceData.signatureName && (
-                          <>
-                            <p className="signature-font text-2xl text-slate-400 dark:text-slate-500 mb-1" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                              {invoiceData.signatureName}
-                            </p>
-                            <p className="font-bold text-slate-900 dark:text-white text-base uppercase tracking-tight">
-                              {invoiceData.signatureName}
-                            </p>
-                          </>
-                        )}
-                        {invoiceData.signatureRole && (
-                          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                            {invoiceData.signatureRole}
-                          </p>
-                        )}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Contact Info Footer */}
-                  {(invoiceData.phoneNumber || invoiceData.billFrom.email || invoiceData.location) && (
-                    <div className="pt-8 border-t-2 border-slate-200 dark:border-slate-800">
-                      <div className="flex justify-center items-center gap-12 px-4">
-                        {/* Phone */}
-                        {invoiceData.phoneNumber && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                              <Phone className="w-4 h-4 text-[#06b6d4]" />
-                            </div>
-                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                              {invoiceData.phoneNumber}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Email */}
-                        {invoiceData.billFrom.email && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                              <Mail className="w-4 h-4 text-[#06b6d4]" />
-                            </div>
-                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                              {invoiceData.billFrom.email}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Location */}
-                        {invoiceData.location && (
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full border border-cyan-200 dark:border-cyan-900">
-                              <MapPin className="w-4 h-4 text-[#06b6d4]" />
-                            </div>
-                            <span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                              {invoiceData.location}
-                            </span>
-                          </div>
-                        )}
+                  {/* Bottom Contact Bar */}
+                  <div className="border-t border-blue-200 pt-4 pb-2">
+                    <div className="flex justify-around items-center px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
+                          <Phone className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500">{invoiceData.phoneNumber || '123-456-7890'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500">{invoiceData.billFrom.email || 'hello@reallygreatsite.com'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500">{invoiceData.location || '123 Anywhere St., Any City'}</span>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1154,10 +959,10 @@ export default function GeneratorPage() {
         </div>
       )}
 
-
       <div className='text-center py-10'>
-        <p className="text-slate-600 dark:text-slate-400 text-xs font-medium">This site made and maintain by <Link to="https://level6it.com" target="_blank" rel="noopener noreferrer" className='text-[#06b6d4] hover:underline'>Level6it.com</Link> </p>
+        <p className="text-slate-600 text-xs font-medium">This site made and maintain by <Link to="https://level6it.com" target="_blank" rel="noopener noreferrer" className='text-[#06b6d4] hover:underline'>Level6it.com</Link> </p>
       </div>
+
     </div>
   )
 }
