@@ -603,7 +603,7 @@ export default function GeneratorPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {invoiceData.items.map((item, idx) => (
+                      {invoiceData.items.map((item) => (
                         <tr
                           key={item.id}
                           className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"

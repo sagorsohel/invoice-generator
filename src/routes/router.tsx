@@ -1,5 +1,4 @@
 import { createBrowserRouter } from 'react-router'
-import HomePage from '../pages/home/home-page'
 import LoginPage from '../pages/auth/login-page'
 import RegisterPage from '../pages/auth/register-page'
 import ForgotPasswordPage from '../pages/auth/forgot-password-page'
@@ -8,7 +7,6 @@ import UserDashboardPage from '../pages/user/user-dashboard-page'
 import GeneratorPage from '../pages/generator/generator-page'
 import AdminPanelLayout from '@/components/admin-panel/admin-panel-layout'
 import UserPanelLayout from '@/components/user-panel/user-panel-layout'
-import { WebsiteLayout } from '@/components/website/website-layout'
 
 const router = createBrowserRouter([
   // 🌐 Website routes (with website layout - sticky navbar & footer)
