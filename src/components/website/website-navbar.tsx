@@ -1,7 +1,7 @@
 "use client";
 
 import { NavLink } from "react-router";
-import { ModeToggle } from "@/components/mode-toggle";
+
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
@@ -89,7 +89,7 @@ export function WebsiteNavbar() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-4">
-            <ModeToggle />
+
             
             {/* Mobile menu button */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
