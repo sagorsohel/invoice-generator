@@ -33,12 +33,14 @@ interface InvoiceData {
   dueDate: string
   billTo: {
     name: string
-    email: string
+    email?: string
+    phone?: string
     address: string
   }
   billFrom: {
     name: string
-    email: string
+    email?: string
+    phone?: string
     address: string
     logo?: string
     tagline?: string
@@ -66,11 +68,13 @@ export default function GeneratorPage() {
     billTo: {
       name: '',
       email: '',
+      phone: '',
       address: '',
     },
     billFrom: {
       name: '',
       email: '',
+      phone: '',
       address: '',
       logo: undefined,
     },
@@ -335,13 +339,25 @@ export default function GeneratorPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bill-to-email" className="text-sm font-medium">
-                      Email
+                      Email <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="bill-to-email"
                       placeholder="client@example.com"
                       value={invoiceData.billTo.email}
                       onChange={(e) => updateInvoiceData('billTo.email', e.target.value)}
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bill-to-phone" className="text-sm font-medium">
+                      Phone <span className="text-slate-400 font-normal">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="bill-to-phone"
+                      placeholder="Client phone number"
+                      value={invoiceData.billTo.phone}
+                      onChange={(e) => updateInvoiceData('billTo.phone', e.target.value)}
                       className="bg-white"
                     />
                   </div>
@@ -384,13 +400,25 @@ export default function GeneratorPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="bill-from-email" className="text-sm font-medium">
-                      Email
+                      Email <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="bill-from-email"
                       placeholder="your@example.com"
                       value={invoiceData.billFrom.email}
                       onChange={(e) => updateInvoiceData('billFrom.email', e.target.value)}
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bill-from-phone" className="text-sm font-medium">
+                      Phone <span className="text-slate-400 font-normal">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="bill-from-phone"
+                      placeholder="Your phone number"
+                      value={invoiceData.billFrom.phone}
+                      onChange={(e) => updateInvoiceData('billFrom.phone', e.target.value)}
                       className="bg-white"
                     />
                   </div>
@@ -580,7 +608,7 @@ export default function GeneratorPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="terms" className="text-sm font-medium">
-                    Terms and Conditions
+                    Terms and Conditions <span className="text-slate-400 font-normal">(Optional)</span>
                   </Label>
                   <Textarea
                     id="terms"
@@ -593,7 +621,7 @@ export default function GeneratorPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="sig-name" className="text-sm font-medium">
-                      Authorized Person Name
+                      Authorized Person Name <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="sig-name"
@@ -605,7 +633,7 @@ export default function GeneratorPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="sig-role" className="text-sm font-medium">
-                      Designation / Role
+                      Designation / Role <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="sig-role"
@@ -619,7 +647,7 @@ export default function GeneratorPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-sm font-medium">
-                      Your Phone Number
+                      Your Phone Number <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="phone"
@@ -632,7 +660,7 @@ export default function GeneratorPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="location" className="text-sm font-medium">
-                      Business Location
+                      Business Location <span className="text-slate-400 font-normal">(Optional)</span>
                     </Label>
                     <Input
                       id="location"
@@ -819,9 +847,9 @@ export default function GeneratorPage() {
                     <h3 className="text-sm font-bold text-slate-400 mb-2 uppercase tracking-widest">Invoice to :</h3>
                     <p className="text-xl font-black text-slate-900 mb-1">{invoiceData.billTo.name || ''}</p>
                     <div className="text-sm text-slate-500 space-y-0.5 font-medium">
-                      <p>{invoiceData.phoneNumber || ''}</p>
-                      <p>{invoiceData.billTo.email || ''}</p>
-                      <p>{invoiceData.billTo.address || ''}</p>
+                      {invoiceData.billTo.phone && <p>{invoiceData.billTo.phone}</p>}
+                      {invoiceData.billTo.email && <p>{invoiceData.billTo.email}</p>}
+                      {invoiceData.billTo.address && <p>{invoiceData.billTo.address}</p>}
                     </div>
                   </div>
                   <div className="text-right flex flex-col justify-end">
@@ -941,7 +969,7 @@ export default function GeneratorPage() {
                         <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
                           <Phone className="w-4 h-4 text-[#06b6d4]" />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500">{invoiceData.phoneNumber || '123-456-7890'}</span>
+                        <span className="text-[10px] font-bold text-slate-500">{invoiceData.billFrom.phone || invoiceData.phoneNumber || '123-456-7890'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full border border-blue-100 flex items-center justify-center">
